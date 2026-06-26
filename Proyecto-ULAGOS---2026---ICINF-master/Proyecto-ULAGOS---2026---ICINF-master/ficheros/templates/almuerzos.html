@@ -1,0 +1,182 @@
+{% from '_navbar.html' import navbar %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almuerzos | Cafetería ULagos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+body{background:#f4f8fc;font-family:'Segoe UI',sans-serif}
+.hero-strip{background:linear-gradient(135deg,#0f2f52,#1f5fb8);color:#fff;padding:50px 0 35px}
+.menu-card{border:none;border-radius:18px;overflow:hidden;transition:.3s;
+  box-shadow:0 6px 18px rgba(0,0,0,.07);background:#fff;height:100%}
+.menu-card:hover{transform:translateY(-6px);box-shadow:0 12px 28px rgba(0,0,0,.13)}
+.menu-img{height:210px;object-fit:cover;width:100%}
+.badge-tipo{font-weight:600;padding:7px 14px;border-radius:50px;font-size:.82rem}
+.price{color:#0d6efd;font-size:1.2rem;font-weight:800}
+.btn-reservar{background:linear-gradient(135deg,#0f2f52,#1f5fb8);color:#fff;border:none;
+  border-radius:12px;padding:11px;font-weight:700;width:100%;transition:.2s}
+.btn-reservar:hover{opacity:.9;color:#fff}
+.btn-reservar:disabled{background:#adb5bd;cursor:not-allowed}
+.day-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;padding:6px 16px;border-radius:50px;font-weight:600;font-size:.9rem}
+footer{background:#fff;border-top:1px solid #dee2e6}
+</style>
+</head>
+<body>
+
+{{ navbar('almuerzos') }}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container mt-3">
+  {% for cat, msg in messages %}
+  <div class="alert alert-{{ cat }} alert-dismissible fade show">
+    {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="container">
+    <h1 class="fw-800 mb-2" style="font-weight:800">🍽 Almuerzos</h1>
+    <p style="opacity:.85">Opciones frescas y saludables para disfrutar en el campus ULagos.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  {# ── MENÚ DE HOY ─────────────────────────────────────────────────────── #}
+  {% if menu_hoy %}
+
+    <div class="text-center mb-4">
+      <span class="badge bg-success py-2 px-4 fs-6">
+        <i class="bi bi-calendar-check me-1"></i>
+        Menú de hoy — {{ menu_hoy.day | title }} a las {{ menu_hoy.time }}
+      </span>
+    </div>
+
+    <div class="row g-4 mb-5">
+      {% for plato in menu_hoy.to_platos() %}
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card menu-card">
+          <img src="{{ plato.img }}" class="menu-img" alt="{{ plato.label }}">
+          <div class="card-body d-flex flex-column p-3">
+
+            {# Badge por tipo #}
+            {% if plato.label == 'Almuerzo 1' %}
+              <span class="badge-tipo bg-primary text-white mb-3 d-inline-block">Almuerzo 1</span>
+            {% elif plato.label == 'Almuerzo 2' %}
+              <span class="badge-tipo bg-info text-white mb-3 d-inline-block">Almuerzo 2</span>
+            {% elif plato.label == 'Hipocalórico' %}
+              <span class="badge-tipo bg-success text-white mb-3 d-inline-block">🥗 Hipocalórico</span>
+            {% else %}
+              <span class="badge-tipo bg-warning text-dark mb-3 d-inline-block">🌱 Vegetariano</span>
+            {% endif %}
+
+            <h5 class="fw-bold mb-1">{{ plato.nombre }}</h5>
+
+            <div class="mt-auto pt-3">
+              {# Stock con estado profesional #}
+              {% with info = estado_inventario(plato.stock) %}
+              <p class="mb-2 small">
+                <i class="bi bi-box-seam me-1"></i>
+                Disponible: <strong>{{ plato.stock }}</strong>
+                &nbsp;<span class="badge bg-{{ info[1] }}">{{ info[0] }}</span>
+              </p>
+              {% endwith %}
+
+              <p class="price mb-3">${{ '{:,}'.format(plato.precio).replace(',', '.') }}</p>
+
+              {% if plato.stock > 0 %}
+              <a href="{{ url_for('pago', item=plato.nombre, precio=plato.precio, tipo='almuerzo', menu_id=menu_hoy.id, field=plato.field) }}"
+                 class="btn-reservar btn text-white">
+                <i class="bi bi-cart-check me-1"></i> Reservar
+              </a>
+              {% else %}
+              <button class="btn-reservar btn" disabled>Sin stock</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="alert alert-info text-center mb-5">
+      <i class="bi bi-info-circle-fill me-2"></i>
+      No hay menú configurado para hoy. Mostrando todos los menús disponibles.
+    </div>
+  {% endif %}
+
+  {# ── OTROS MENÚS ─────────────────────────────────────────────────────── #}
+  {% set otros = todos_menus | rejectattr('id', 'equalto', menu_hoy.id if menu_hoy else -1) | list %}
+  {% if otros %}
+  <h4 class="fw-bold text-muted mb-2">
+    <i class="bi bi-calendar-week me-1"></i>
+    {{ 'Otros días de la semana' if menu_hoy else 'Menús de la semana' }}
+  </h4>
+  <p class="text-muted small mb-4">
+    <i class="bi bi-info-circle me-1"></i>
+    Solo se pueden reservar los almuerzos correspondientes al día de hoy.
+  </p>
+  {% for menu in otros %}
+  <div class="card mb-4" style="border:none;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.07)">
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center" style="border-radius:18px 18px 0 0">
+      <h5 class="fw-bold mb-0">{{ menu.day | title }}</h5>
+      <span class="badge bg-secondary">{{ menu.time }}</span>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <div class="row g-3">
+        {% for plato in menu.to_platos() %}
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card menu-card">
+            <img src="{{ plato.img }}" class="menu-img" alt="{{ plato.label }}">
+            <div class="card-body d-flex flex-column p-3">
+              <small class="text-muted fw-bold mb-1">{{ plato.label }}</small>
+              <h6 class="fw-bold mb-1">{{ plato.nombre }}</h6>
+              <div class="mt-auto pt-2">
+                {% with info = estado_inventario(plato.stock) %}
+                <p class="mb-1 small"><span class="badge bg-{{ info[1] }}">{{ info[0] }}</span> ({{ plato.stock }})</p>
+                {% endwith %}
+                <p class="price mb-2">${{ '{:,}'.format(plato.precio).replace(',', '.') }}</p>
+                <button class="btn-reservar btn btn-sm" disabled title="Solo puedes reservar el menú del día de hoy">
+                  <i class="bi bi-lock-fill me-1"></i> No disponible hoy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if not menu_hoy and not todos_menus %}
+  <div class="text-center py-5">
+    <i class="bi bi-calendar-x" style="font-size:4rem;color:#adb5bd"></i>
+    <h4 class="mt-3 text-muted">No hay menús configurados</h4>
+    <p class="text-muted">El administrador aún no ha ingresado los menús de la semana.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary rounded-pill px-4 mt-2">Volver al inicio</a>
+  </div>
+  {% endif %}
+
+</div>
+
+<footer class="py-4 mt-5">
+  <div class="container text-center">
+    <p class="mb-0 text-muted">Cafetería ULagos © 2026</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

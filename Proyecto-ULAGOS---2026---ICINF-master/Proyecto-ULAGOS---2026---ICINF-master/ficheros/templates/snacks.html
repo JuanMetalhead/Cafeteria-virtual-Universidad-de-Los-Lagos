@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snacks | Cafetería ULagos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --azul: #0f2f52;
+  --azul2: #1f5fb8;
+  --amarillo: #ffc933;
+  --bg: #f0f4f9;
+  --radius: 20px;
+  --shadow: 0 8px 30px rgba(15,47,82,.10);
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); font-family: 'DM Sans', sans-serif; margin: 0; }
+
+/* ── NAVBAR ── */
+.navbar { background: #fff !important; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.logo-ulagos { width: 90px; height: 80px; object-fit: contain; }
+.brand-text { font-weight: 800; color: #111; font-size: 1.15rem; font-family: 'Fraunces', serif; }
+.nav-link { color: #111 !important; font-weight: 600; font-size: .95rem; }
+.nav-link.active { color: var(--azul2) !important; }
+.btn-reservas { background: var(--amarillo); color: #222; border: none; border-radius: 10px; padding: 9px 18px; font-weight: 700; transition: .2s; }
+.btn-reservas:hover { background: #f5c400; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--azul) 0%, var(--azul2) 100%);
+  color: white; padding: 70px 0 50px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/svg%3E");
+}
+.hero h1 { font-family: 'Fraunces', serif; font-weight: 900; font-size: clamp(2rem, 5vw, 3rem); }
+.hero p { opacity: .85; font-size: 1.1rem; }
+
+
+/* ── CATEGORY TABS ── */
+.cat-strip { background: var(--azul); position: sticky; top: 70px; z-index: 100; box-shadow: 0 4px 16px rgba(15,47,82,.25); }
+.cat-strip .container { display: flex; overflow-x: auto; scrollbar-width: none; }
+.cat-strip .container::-webkit-scrollbar { display: none; }
+.cat-btn {
+  flex: 0 0 auto; background: none; border: none;
+  color: rgba(255,255,255,.65); font-family: 'DM Sans', sans-serif;
+  font-weight: 600; font-size: .9rem; padding: 16px 22px;
+  cursor: pointer; white-space: nowrap; transition: .2s;
+  border-bottom: 3px solid transparent;
+  display: flex; align-items: center; gap: 7px;
+}
+.cat-btn:hover { color: #fff; }
+.cat-btn.active { color: var(--amarillo); border-bottom-color: var(--amarillo); }
+
+/* ── SECTIONS ── */
+.products-wrap { padding: 50px 0 20px; }
+.section-block { margin-bottom: 60px; scroll-margin-top: 130px; }
+.section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.section-title { font-family: 'Fraunces', serif; color: var(--azul); font-weight: 900; font-size: 1.6rem; margin: 0; }
+.section-subtitle { color: #888; font-size: .9rem; margin: 2px 0 0; }
+
+/* ── PRODUCT CARDS ── */
+.product-card {
+  background: #fff; border: none; border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .25s, box-shadow .25s;
+  height: 100%; display: flex; flex-direction: column;
+}
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(15,47,82,.15); }
+.product-img { height: 180px; width: 100%; object-fit: cover; flex-shrink: 0; }
+.card-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
+.card-body h5 { font-weight: 700; color: #111; font-size: 1rem; margin-bottom: 4px; }
+.desc { color: #777; font-size: .82rem; margin-bottom: 10px; line-height: 1.4; flex: 1; }
+
+/* Price & stock */
+.price-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.price { font-size: 1.2rem; font-weight: 800; color: var(--azul); }
+.stock-badge { background: #e8f7ee; color: #198754; font-size: .75rem; font-weight: 700; padding: 3px 10px; border-radius: 50px; }
+
+/* Size selector */
+.size-selector { margin-bottom: 12px; }
+.size-selector label { font-size: .78rem; font-weight: 600; color: #555; display: block; margin-bottom: 6px; }
+.size-btns { display: flex; gap: 8px; }
+.size-btn {
+  flex: 1; border: 2px solid #e0e7ef; background: #f8fafc;
+  color: #555; border-radius: 10px; padding: 6px 4px;
+  font-size: .78rem; font-weight: 600; cursor: pointer; transition: .18s; text-align: center;
+}
+.size-btn:hover { border-color: var(--azul2); color: var(--azul2); }
+.size-btn.selected { border-color: var(--azul); background: var(--azul); color: #fff; }
+.dynamic-price { transition: color .18s; }
+
+/* Add button */
+.btn-add {
+  width: 100%; border: none; color: white; padding: 11px;
+  border-radius: 12px; font-weight: 700; font-size: .9rem;
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  transition: .2s; display: flex; align-items: center;
+  justify-content: center; gap: 7px; cursor: pointer; margin-top: auto;
+}
+.btn-add:hover { opacity: .9; transform: scale(1.02); }
+.btn-add.added { background: linear-gradient(135deg, #198754, #25a868); }
+
+/* ── CART TOAST ── */
+.cart-toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--azul); color: #fff;
+  padding: 14px 22px; border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  font-weight: 600; font-size: .9rem; z-index: 9999;
+  display: flex; align-items: center; gap: 10px;
+  transform: translateY(80px); opacity: 0;
+  transition: .35s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none; max-width: 320px;
+}
+.cart-toast.show { transform: translateY(0); opacity: 1; }
+.cart-toast .bi { font-size: 1.2rem; color: var(--amarillo); }
+
+/* ── FLOATING CART ── */
+.floating-cart {
+  position: fixed; bottom: 28px; left: 28px;
+  background: var(--amarillo); color: #222; border: none;
+  border-radius: 50px; padding: 13px 22px;
+  font-weight: 800; font-size: .95rem;
+  box-shadow: 0 8px 24px rgba(255,201,51,.45);
+  cursor: pointer; z-index: 999;
+  display: flex; align-items: center; gap: 9px; transition: .2s;
+}
+.floating-cart:hover { transform: scale(1.05); }
+.cart-count {
+  background: var(--azul); color: #fff; border-radius: 50px;
+  font-size: .8rem; font-weight: 800; min-width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center; padding: 0 6px;
+}
+
+/* ── MODAL ── */
+.modal-content { border-radius: 20px; border: none; }
+.modal-header { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: white; border-radius: 20px 20px 0 0; border: none; }
+.modal-header .btn-close { filter: invert(1); }
+.cart-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 10px; }
+.cart-item-name { font-weight: 700; color: #111; font-size: .95rem; }
+.cart-item-sub { color: #888; font-size: .8rem; }
+.cart-item-price { font-weight: 800; color: var(--azul); font-size: 1rem; white-space: nowrap; }
+.btn-remove { background: none; border: none; color: #ccc; cursor: pointer; padding: 4px; transition: .15s; }
+.btn-remove:hover { color: #e74c3c; }
+.cart-total { background: #f8fafc; border-radius: 14px; padding: 16px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+.cart-total .label { font-weight: 600; color: #555; }
+.cart-total .total-price { font-weight: 900; color: var(--azul); font-size: 1.4rem; font-family: 'Fraunces', serif; }
+.btn-confirm { background: linear-gradient(135deg, var(--azul), var(--azul2)); color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 700; font-size: 1rem; width: 100%; margin-top: 14px; cursor: pointer; transition: .2s; }
+.btn-confirm:hover { opacity: .9; }
+.empty-cart { text-align: center; padding: 40px 20px; color: #bbb; }
+.empty-cart .bi { font-size: 3rem; display: block; margin-bottom: 10px; }
+
+/* ── FOOTER ── */
+footer { background: var(--azul); color: rgba(255,255,255,.7); padding: 30px; text-align: center; margin-top: 40px; }
+footer h5 { color: #fff; font-family: 'Fraunces', serif; font-weight: 900; }
+
+@media(max-width:576px) {
+  .cat-btn { padding: 13px 14px; font-size: .82rem; }
+  .section-title { font-size: 1.3rem; }
+  .floating-cart .label { display: none; }
+}
+</style>
+</head>
+<body>
+
+{# ── NAVBAR ── #}
+{% from "_navbar.html" import navbar %}
+{{ navbar('snacks') }}
+
+{# ── HERO ── #}
+<section class="hero text-center">
+  <div class="container position-relative">
+    <h1 class="display-4">Snacks & Cafetería</h1>
+    <p class="lead mb-4">Cafés, bebidas, sándwiches y más para la comunidad ULagos</p>
+  </div>
+</section>
+
+{# ── CATEGORY TABS ── #}
+{% set categorias = [
+  ('cafes',      '', 'Cafés'),
+  ('sandwiches', '', 'Sandwiches'),
+  ('reposteria', '', 'Repostería'),
+  ('snacks',     '', 'Snacks'),
+  ('bebidas',    '', 'Bebidas'),
+  ('jugos',      '', 'Jugos')
+] %}
+
+<div class="cat-strip">
+  <div class="container">
+    {% for key, emoji, label in categorias %}
+    <button class="cat-btn {% if loop.first %}active{% endif %}" data-target="{{ key }}">
+      {{ label }}
+    </button>
+    {% endfor %}
+  </div>
+</div>
+
+{# ── PRODUCTS ── #}
+<div class="products-wrap">
+<div class="container">
+
+  {# ── CAFÉS (con selector de tamaño) ── #}
+  <div class="section-block" id="sec-cafes">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Cafés</h2>
+        <p class="section-subtitle">Elige tu tamaño: Regular o Grande</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      {% for p in productos.cafes %}
+      <div class="col-lg-3 col-md-4 col-sm-6" data-name="{{ p.nombre }}" data-cat="cafes">
+        <div class="product-card">
+          <img src="{{ p.img }}" class="product-img" alt="{{ p.nombre }}">
+          <div class="card-body">
+            <h5>{{ p.nombre }}</h5>
+            <p class="desc">{{ p.desc }}</p>
+
+            <div class="size-selector">
+              <label>Tamaño</label>
+              <div class="size-btns">
+                <button class="size-btn selected"
+                        data-price="{{ p.precio_regular }}"
+                        data-label="Regular">
+                  Regular ${{ '{:,}'.format(p.precio_regular).replace(',', '.') }}
+                </button>
+                <button class="size-btn"
+                        data-price="{{ p.precio_grande }}"
+                        data-label="Grande">
+                  Grande ${{ '{:,}'.format(p.precio_grande).replace(',', '.') }}
+                </button>
+              </div>
+            </div>
+
+            <div class="price-row">
+              <span class="price dynamic-price">${{ '{:,}'.format(p.precio_regular).replace(',', '.') }}</span>
+              <span class="stock-badge">Stock: {{ p.stock }}</span>
+            </div>
+            <button class="btn-add" onclick="addToCart(this, '{{ p.nombre }}', 'cafes', 0)">
+            <i class="bi bi-plus-circle"></i> Agregar a reserva
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# ── SECCIONES SIN SELECTOR DE TAMAÑO ── #}
+  {% set secciones = [
+    ('sandwiches', '', 'Sandwiches',  'Preparados frescos cada día'),
+    ('reposteria', '', 'Repostería',  'Horneado fresco cada mañana'),
+    ('snacks',     '', 'Snacks',      'Antojos rápidos para estudiar'),
+    ('bebidas',    '', 'Bebidas',     'Hidratación para tu jornada universitaria'),
+    ('jugos',      '', 'Jugos',       'Naturales y procesados para todos los gustos')
+  ] %}
+
+  {% for key, emoji, titulo, subtitulo in secciones %}
+  <div class="section-block" id="sec-{{ key }}">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">{{ titulo }}</h2>
+        <p class="section-subtitle">{{ subtitulo }}</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      {% for p in productos[key] %}
+      <div class="col-lg-3 col-md-4 col-sm-6" data-name="{{ p.nombre }}" data-cat="{{ key }}">
+        <div class="product-card">
+          <img src="{{ p.img }}" class="product-img" alt="{{ p.nombre }}">
+          <div class="card-body">
+            <h5>{{ p.nombre }}</h5>
+            <p class="desc">{{ p.desc }}</p>
+            <div class="price-row">
+              <span class="price">${{ '{:,}'.format(p.precio).replace(',', '.') }}</span>
+              <span class="stock-badge">Stock: {{ p.stock }}</span>
+            </div>
+            <button class="btn-add" onclick="addToCart(this, '{{ p.nombre }}', '{{ key }}', {{ p.precio }})">
+              <i class="bi bi-plus-circle"></i> Agregar a reserva
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+</div></div><footer>
+  <div class="container">
+    <h5>Cafetería ULagos</h5>
+    <p class="mb-0" style="opacity:.6">Sistema de reservas y pedidos para la comunidad universitaria.</p>
+  </div>
+</footer>
+
+{# ── FLOATING CART ── #}
+<button class="floating-cart" data-bs-toggle="modal" data-bs-target="#cartModal">
+  <i class="bi bi-bag-check-fill"></i>
+  <span class="label">Mi Reserva</span>
+  <span class="cart-count" id="cartCount">0</span>
+</button>
+
+{# ── MODAL CARRITO ── #}
+<div class="modal fade" id="cartModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold"><i class="bi bi-bag-check me-2"></i>Mi Reserva</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="cartBody">
+        <div class="empty-cart">
+          <i class="bi bi-bag"></i>
+          <p>Tu reserva está vacía</p>
+        </div>
+      </div>
+      <div class="modal-footer flex-column border-0 pt-0">
+        <div class="cart-total w-100" id="cartTotalBox" style="display:none">
+          <span class="label">Total reserva</span>
+          <span class="total-price" id="cartTotal">$0</span>
+        </div>
+        <button class="btn-confirm" id="btnConfirm" style="display:none" onclick="confirmReserva()">
+          <i class="bi bi-calendar-check me-2"></i> Confirmar Reserva
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── TOAST ── #}
+<div class="cart-toast" id="cartToast">
+  <i class="bi bi-check-circle-fill"></i>
+  <span id="toastMsg">Producto agregado</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+// ── CART STATE ────────────────────────────────────────────────────────────────
+let cart = [];
+
+// ── CATEGORY NAVIGATION ───────────────────────────────────────────────────────
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('sec-' + btn.dataset.target)
+            .scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Actualiza tab activo al scrollear
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id.replace('sec-', '');
+      document.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.target === id);
+      });
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+
+document.querySelectorAll('.section-block').forEach(s => observer.observe(s));
+
+// ── SIZE SELECTOR ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.size-btns').forEach(group => {
+  group.querySelectorAll('.size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const priceEl = btn.closest('.card-body').querySelector('.dynamic-price');
+      if (priceEl) priceEl.textContent = '$' + parseInt(btn.dataset.price).toLocaleString('es-CL');
+    });
+  });
+});
+
+
+
+// ── ADD TO CART ───────────────────────────────────────────────────────────────
+function addToCart(btn, name, cat, fixedPrice) {
+  const cardBody     = btn.closest('.card-body');
+  const selectedSize = cardBody.querySelector('.size-btn.selected');
+  const price        = selectedSize ? parseInt(selectedSize.dataset.price) : fixedPrice;
+  const label        = selectedSize ? selectedSize.dataset.label : '';
+
+  btn.classList.add('added');
+  btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> ¡Agregado!';
+  setTimeout(() => {
+    btn.classList.remove('added');
+    btn.innerHTML = '<i class="bi bi-plus-circle"></i> Agregar a reserva';
+  }, 1800);
+
+  cart.push({ name, cat, price, label, id: Date.now() });
+  updateCartUI();
+  showToast(name + (label ? ' (' + label + ')' : '') + ' agregado');
+}
+
+// ── CART UI ───────────────────────────────────────────────────────────────────
+function updateCartUI() {
+  document.getElementById('cartCount').textContent = cart.length;
+
+  const body       = document.getElementById('cartBody');
+  const totalBox   = document.getElementById('cartTotalBox');
+  const btnConfirm = document.getElementById('btnConfirm');
+  const totalEl    = document.getElementById('cartTotal');
+
+  if (cart.length === 0) {
+    body.innerHTML = `<div class="empty-cart"><i class="bi bi-bag"></i><p>Tu reserva está vacía</p></div>`;
+    totalBox.style.display = btnConfirm.style.display = 'none';
+    return;
+  }
+
+  let html = '', total = 0;
+  cart.forEach(item => {
+    total += item.price;
+    html += `
+      <div class="cart-item">
+        <div>
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-sub">${item.label || catLabel(item.cat)}</div>
+        </div>
+        <span class="cart-item-price">$${item.price.toLocaleString('es-CL')}</span>
+        <button class="btn-remove" onclick="removeItem(${item.id})"><i class="bi bi-x-lg"></i></button>
+      </div>`;
+  });
+
+  body.innerHTML = html;
+  totalEl.textContent    = '$' + total.toLocaleString('es-CL');
+  totalBox.style.display = 'flex';
+  btnConfirm.style.display = 'block';
+}
+
+function removeItem(id) {
+  cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+}
+
+function catLabel(cat) {
+  return { cafes:'Cafés', sandwiches:'Sandwiches', reposteria:'Repostería',
+           snacks:'Snacks', bebidas:'Bebidas', jugos:'Jugos' }[cat] || cat;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('cartToast');
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── CONFIRMAR RESERVA → pasa por pago.html (igual que almuerzos) ──────────────
+function confirmReserva() {
+  const items = cart.map(i => ({ name: i.name, price: i.price, size: i.label || null }));
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+  fetch('/preparar_pago_snacks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+      showToast('Continuando al pago...');
+      setTimeout(() => { window.location.href = res.redirect || '/snacks'; }, 700);
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-calendar-check me-2"></i> Confirmar Reserva';
+      showToast(res.error || 'No se pudo continuar al pago.');
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-calendar-check me-2"></i> Confirmar Reserva';
+    showToast('Error al conectar. Intenta de nuevo.');
+  });
+}
+</script>
+</body>
+</html>

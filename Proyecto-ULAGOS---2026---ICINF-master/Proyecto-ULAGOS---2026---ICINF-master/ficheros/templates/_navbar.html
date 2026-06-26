@@ -1,0 +1,53 @@
+{# Macro reutilizable — evita duplicar el HTML de la barra en cada página #}
+{% macro navbar(active='') %}
+<nav class="navbar navbar-expand-lg sticky-top py-2" style="background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('index') }}"
+       style="color:#0f2f52;font-size:1.15rem">
+      <img src="https://admisionpostgrado.ulagos.cl/assets/logo-b48d58f1ebfc9691ba485c2d05e36f58d117c6ec9762a943c120c31ea0df1da3.svg"
+           alt="ULagos" style="width:46px;height:46px;object-fit:contain">
+           Cafetería ULagos
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nb">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item">
+          <a class="nav-link fw-500 {% if active=='index' %}text-primary fw-bold{% endif %}"
+             href="{{ url_for('index') }}" style="color:#0f2f52">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-500 {% if active=='almuerzos' %}text-primary fw-bold{% endif %}"
+             href="{{ url_for('almuerzos') }}" style="color:#0f2f52">Almuerzos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-500 {% if active=='snacks' %}text-primary fw-bold{% endif %}"
+             href="{{ url_for('snacks') }}" style="color:#0f2f52">Snacks</a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ url_for('reservas') }}"
+             class="btn btn-warning fw-bold px-3 py-2 rounded-3"
+             style="background:#ffc933;color:#222;border:none">
+            <i class="bi bi-calendar-check"></i> Mis Reservas
+          </a>
+        </li>
+        {% if session.get('role') %}
+        <li class="nav-item">
+          <a href="{{ url_for('admin') }}"
+             class="btn btn-outline-primary fw-bold px-3 py-2 rounded-3">
+            <i class="bi bi-speedometer2"></i> Panel Admin
+          </a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+          <a href="{{ url_for('logout') }}"
+             class="btn btn-outline-danger fw-bold px-3 py-2 rounded-3">
+            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endmacro %}
